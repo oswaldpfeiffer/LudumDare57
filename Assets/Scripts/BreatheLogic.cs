@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BreatheLogic : MonoBehaviour
 {
@@ -34,6 +35,12 @@ public class BreatheLogic : MonoBehaviour
     [SerializeField] TMP_Text _karmaText;
     [SerializeField] TMP_Text _chiText;
 
+    [SerializeField] Camera _cam;
+
+    float _camFOVTarget;
+    float _camFOVNormal = 50f;
+    float _camFOVFocus = 53f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,20 +54,42 @@ public class BreatheLogic : MonoBehaviour
         UpdateUI(t);
         ManageInputs(t);
         PassiveEarnings();
+        HandleCameraFocus();
+    }
+
+    private void HandleCameraFocus()
+    {
+        _camFOVTarget = _multiplyEarnings ? _camFOVFocus : _camFOVNormal;
+        float diff = _camFOVTarget - _cam.fieldOfView;
+        _cam.fieldOfView += diff * Time.deltaTime * 2;
     }
 
     private void PassiveEarnings ()
     {
-        if (Time.time > _lastEarnedChi + (_chiEarnDelay * (_multiplyEarnings ? _chiMultiplier : 1f)))
+        IdleData.CHI += IdleData.GetChiAmount() * (_multiplyEarnings ? IdleData.GetChiMultiplier() : 1) * Time.deltaTime * IdleData.GetChiSpeed();
+
+        Debug.Log(IdleData.CHI);
+
+        // Karma : convertit automatiquement une petite partie du Chi en Karma
+        double karmaGain = IdleData.GetKarmaAmount() * (_multiplyEarnings ? IdleData.GetKarmaMultiplier() : 1) * Time.deltaTime * 0.1;
+        IdleData.KARMA += karmaGain;
+        IdleData.CHI -= karmaGain; // optionnel : si tu veux que ça coûte du chi
+
+        /*
+        float chiDelay = _chiEarnDelay * (_multiplyEarnings ? _chiMultiplier : 1f);
+        float karmaDelay = _karmaEarnDelay * (_multiplyEarnings ? _karmaMultiplier : 1f);
+        if (Time.time > _lastEarnedChi + chiDelay)
         {
             _lastEarnedChi = Time.time;
-            _chi += _chiEarnAmount * (_multiplyEarnings ? _chiMultiplier : 1f);
+            _chi += _chiEarnAmount;
+            Debug.Log(chiDelay);
         }
-        if (Time.time > _lastEarnedKarma + (_karmaEarnDelay * (_multiplyEarnings ? _karmaMultiplier : 1f)))
+        if (Time.time > _lastEarnedKarma + karmaDelay)
         {
             _lastEarnedKarma = Time.time;
             _karma += _karmaEarnAmount;
         }
+        */
         UpdateTexts();
     }
 
@@ -68,15 +97,15 @@ public class BreatheLogic : MonoBehaviour
     {
         _karmaText.color = _multiplyEarnings ? _breathInColor : Color.white;
         _chiText.color = _multiplyEarnings ? _breathInColor : Color.white;
-        _karmaText.text = UnitsFormatter.Format(_karma);
-        _chiText.text = UnitsFormatter.Format(_chi);
+        _karmaText.text = UnitsFormatter.Format(IdleData.KARMA);
+        _chiText.text = UnitsFormatter.Format(IdleData.CHI);
     }
 
     void UpdateUI (float t)
     {
         for(int i = 0; i < _breathContainer.childCount; i++)
         {
-            SpriteRenderer c = _breathContainer.GetChild(i).gameObject.GetComponent<SpriteRenderer>();
+            Image c = _breathContainer.GetChild(i).gameObject.GetComponent<Image>();
             if (t < 0.5f)
             {
                 float r = ((float)i / (float)_breathContainer.childCount) * 0.4f;
@@ -105,7 +134,7 @@ public class BreatheLogic : MonoBehaviour
             }
             if (_clickCycle == _cycle)
             {
-                if (Input.GetMouseButton(0) == true)
+                if (Input.GetMouseButton(0) == true && Input.mousePosition.x < Screen.width / 2)
                 {
                     _multiplyEarnings = true;
                 }
