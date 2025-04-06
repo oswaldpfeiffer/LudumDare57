@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class Collectible : MonoBehaviour
 {
+    public static float _globalAngle;
+
     public void Create ()
     {
+        float radius = -(KarmaVisualizerLogic.Instance.Cam.transform.position.z / 2f);
         gameObject.SetActive(true);
-        float angle = Random.Range(0f, 2f * Mathf.PI);
-        float x = Mathf.Cos(angle) * 3f;
-        float y = Mathf.Sin(angle) * 3f;
+        float x = Mathf.Cos(_globalAngle) * radius;
+        float y = Mathf.Sin(_globalAngle) * radius;
         transform.position = new Vector3(x, y + 1, 0);
         transform.SetAsLastSibling();
+        _globalAngle += 0.1f;
     }
 
     private void Update()

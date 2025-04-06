@@ -15,7 +15,7 @@ public class UpgradeItemParent : MonoBehaviour
     public void Update()
     {
         _button.interactable = IsPurchasable();
-        _priceText.text = GetNewUpgradePrice().ToString("0.##");
+        _priceText.text = UnitsFormatter.Format(GetNewUpgradePrice());
         _levelText.text = "Level " + GetUpgradeLevel().ToString();
         _valueText.text = GetValue();
     }

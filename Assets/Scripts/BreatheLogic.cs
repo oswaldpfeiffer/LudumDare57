@@ -41,15 +41,11 @@ public class BreatheLogic : SingletonBaseClass<BreatheLogic>
     float _camFOVNormal = 50f;
     float _camFOVFocus = 53f;
 
-    double _chiTimer;
-    double _karmaTimer;
+    double _lastChi;
+    double _lastKarma;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        _chiTimer = (1 / IdleData.GetChiSpeed()) - 0.5f;
-        _karmaTimer = (1 / IdleData.GetKarmaSpeed()) - 0.5f;
-    }
+    public GameObject BreathTuto;
+    private float breathCount;
 
     // Update is called once per frame
     void Update()
@@ -59,6 +55,7 @@ public class BreatheLogic : SingletonBaseClass<BreatheLogic>
         ManageInputs(t);
         PassiveEarnings();
         HandleCameraFocus();
+        if (breathCount > 10f) BreathTuto.SetActive(false);
     }
 
     private void HandleCameraFocus()
@@ -86,17 +83,16 @@ public class BreatheLogic : SingletonBaseClass<BreatheLogic>
 
     private void SpawnCollectibles ()
     {
-        _chiTimer -= Time.deltaTime;
-        _karmaTimer -= Time.deltaTime;
-        if (_chiTimer <= 0f)
+        if (System.Math.Floor(IdleData.CHI) != _lastChi)
         {
             SpritesFX.Instance.SpawnChi();
-            _chiTimer = (1 / IdleData.GetChiSpeed()) - 0.5f;
+            _lastChi = System.Math.Floor(IdleData.CHI);
         }
-        if (_karmaTimer <= 0f)
+
+        if (System.Math.Floor(IdleData.KARMA) != _lastKarma)
         {
             SpritesFX.Instance.SpawnKarma();
-            _karmaTimer = (1 / IdleData.GetKarmaSpeed()) -0.5f;
+            _lastKarma = System.Math.Floor(IdleData.KARMA);
         }
     }
 
@@ -144,6 +140,7 @@ public class BreatheLogic : SingletonBaseClass<BreatheLogic>
                 if (Input.GetMouseButton(0) == true && Input.mousePosition.x < Screen.width / 2)
                 {
                     _multiplyEarnings = true;
+                    breathCount += Time.deltaTime;
                 }
             }
         } else

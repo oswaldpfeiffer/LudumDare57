@@ -10,7 +10,10 @@ public static class UnitsFormatter
     public static string Format(double value)
     {
         if (value < 1000)
+        {
+            value = System.Math.Floor(value);
             return value.ToString("0");
+        }
 
         int exponent = (int)Math.Floor(Math.Log(value, 1000));
         exponent = Math.Min(exponent, _suffixes.Length - 1);
