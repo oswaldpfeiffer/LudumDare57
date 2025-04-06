@@ -47,7 +47,9 @@ public class KarmaVisualizerLogic : SingletonBaseClass<KarmaVisualizerLogic>
     {
         CamPosition();
         Chakra();
-        // if (Input.GetKeyDown(KeyCode.Space)) IdleData.KARMA += 20;
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.Space)) IdleData.KARMA += 50;
+#endif
         SetSaturation();
         float karma = Mathf.Clamp((float)IdleData.KARMA, 0, 1000f);
         karma = (karma / 1000f) * 0.35f;
