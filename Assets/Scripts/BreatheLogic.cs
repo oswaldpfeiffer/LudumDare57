@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BreatheLogic : MonoBehaviour
+public class BreatheLogic : SingletonBaseClass<BreatheLogic>
 {
     [SerializeField] Transform _breathContainer;
     [SerializeField] Color _idleColor;
@@ -41,10 +41,14 @@ public class BreatheLogic : MonoBehaviour
     float _camFOVNormal = 50f;
     float _camFOVFocus = 53f;
 
+    double _chiTimer;
+    double _karmaTimer;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        _chiTimer = (1 / IdleData.GetChiSpeed()) - 0.5f;
+        _karmaTimer = (1 / IdleData.GetKarmaSpeed()) - 0.5f;
     }
 
     // Update is called once per frame
@@ -66,31 +70,34 @@ public class BreatheLogic : MonoBehaviour
 
     private void PassiveEarnings ()
     {
-        IdleData.CHI += IdleData.GetChiAmount() * (_multiplyEarnings ? IdleData.GetChiMultiplier() : 1) * Time.deltaTime * IdleData.GetChiSpeed();
+        IdleData.CHI += IdleData.GetChiAmount() * 
+            (_multiplyEarnings ? IdleData.GetChiMultiplier() : 1) * 
+            Time.deltaTime * 
+            IdleData.GetChiSpeed();
 
-        Debug.Log(IdleData.CHI);
+        IdleData.KARMA += IdleData.GetKarmaAmount() * 
+            (_multiplyEarnings ? IdleData.GetKarmaMultiplier() : 1) * 
+            Time.deltaTime *
+            IdleData.GetKarmaSpeed();
 
-        // Karma : convertit automatiquement une petite partie du Chi en Karma
-        double karmaGain = IdleData.GetKarmaAmount() * (_multiplyEarnings ? IdleData.GetKarmaMultiplier() : 1) * Time.deltaTime * 0.1;
-        IdleData.KARMA += karmaGain;
-        IdleData.CHI -= karmaGain; // optionnel : si tu veux que ça coûte du chi
-
-        /*
-        float chiDelay = _chiEarnDelay * (_multiplyEarnings ? _chiMultiplier : 1f);
-        float karmaDelay = _karmaEarnDelay * (_multiplyEarnings ? _karmaMultiplier : 1f);
-        if (Time.time > _lastEarnedChi + chiDelay)
-        {
-            _lastEarnedChi = Time.time;
-            _chi += _chiEarnAmount;
-            Debug.Log(chiDelay);
-        }
-        if (Time.time > _lastEarnedKarma + karmaDelay)
-        {
-            _lastEarnedKarma = Time.time;
-            _karma += _karmaEarnAmount;
-        }
-        */
         UpdateTexts();
+        SpawnCollectibles();
+    }
+
+    private void SpawnCollectibles ()
+    {
+        _chiTimer -= Time.deltaTime;
+        _karmaTimer -= Time.deltaTime;
+        if (_chiTimer <= 0f)
+        {
+            SpritesFX.Instance.SpawnChi();
+            _chiTimer = (1 / IdleData.GetChiSpeed()) - 0.5f;
+        }
+        if (_karmaTimer <= 0f)
+        {
+            SpritesFX.Instance.SpawnKarma();
+            _karmaTimer = (1 / IdleData.GetKarmaSpeed()) -0.5f;
+        }
     }
 
     void UpdateTexts ()
@@ -161,5 +168,10 @@ public class BreatheLogic : MonoBehaviour
         AnimatorStateInfo stateInfo = _breathAnim.GetCurrentAnimatorStateInfo(0);
         float normalizedTime = stateInfo.normalizedTime;
         return normalizedTime % 1;
+    }
+
+    public bool IsBreathingBoost ()
+    {
+        return _multiplyEarnings;
     }
 }

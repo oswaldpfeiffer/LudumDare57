@@ -37,8 +37,8 @@ public static class IdleData
     public static int KARMA_AMOUNT_START = 1;
     public static int KARMA_AMOUNT_INC = 1;
 
-    public static float KARMA_SPEED_START = 1f;
-    public static float KARMA_SPEED_INC = 0.5f;
+    public static float KARMA_SPEED_START = 0.1f;
+    public static float KARMA_SPEED_INC = 0.1f;
 
     public static float KARMA_MULT_START = 2f;
     public static float KARMA_MULT_INC = 0.1f;
@@ -51,10 +51,23 @@ public static class IdleData
     private static double REINCARNATION_KARMA_EXPONENT = 1.5;
     private static double REINCARNATION_CHI_EXPONENT = 1.2;
 
+    public static void ResetData ()
+    {
+        CHI = 0;
+        KARMA = 0;
+        INCARNATION++;
+        CHI_AMOUNT_LEVEL = 0;
+        CHI_SPEED_LEVEL = 0;
+        CHI_MULTIPLIER_LEVEL = 0;
+        KARMA_AMOUNT_LEVEL = 0;
+        KARMA_SPEED_LEVEL = 0;
+        KARMA_MULTIPLIER_LEVEL = 0;
+    }
+
     public static double GetChiAmount()
     {
         // Chi produit par tick (quantité)
-        return CHI_AMOUNT_START + CHI_AMOUNT_LEVEL * CHI_AMOUNT_INC * GetGlobalMultiplier();
+        return CHI_AMOUNT_START + CHI_AMOUNT_LEVEL * CHI_AMOUNT_INC * GetGlobalMultiplier() * (LIFEPATH == ELifepath.Patience ? 1.25f : 1f);
     }
 
     public static double GetChiSpeed()
@@ -66,12 +79,12 @@ public static class IdleData
     public static double GetChiMultiplier()
     {
         // Multiplicateur de production (clicks, pouvoirs, etc.)
-        return CHI_MULT_START + CHI_MULTIPLIER_LEVEL * CHI_MULT_INC * GetGlobalMultiplier();
+        return CHI_MULT_START + CHI_MULTIPLIER_LEVEL * CHI_MULT_INC * GetGlobalMultiplier() * (LIFEPATH == ELifepath.Breathing ? 1.5f : 1f);
     }
 
     public static double GetKarmaAmount()
     {
-        return KARMA_AMOUNT_START + KARMA_AMOUNT_LEVEL * KARMA_AMOUNT_INC * GetGlobalMultiplier();
+        return KARMA_AMOUNT_START + KARMA_AMOUNT_LEVEL * KARMA_AMOUNT_INC * GetGlobalMultiplier() * (LIFEPATH == ELifepath.Patience ? 1.25f : 1f);
     }
 
     public static double GetKarmaSpeed()
@@ -82,7 +95,7 @@ public static class IdleData
 
     public static double GetKarmaMultiplier()
     {
-        return KARMA_MULT_START + KARMA_MULTIPLIER_LEVEL * KARMA_MULT_INC + GetGlobalMultiplier();
+        return KARMA_MULT_START + KARMA_MULTIPLIER_LEVEL * KARMA_MULT_INC + GetGlobalMultiplier() * (LIFEPATH == ELifepath.Breathing ? 1.5f : 1f);
     }
 
     public static void Upgrade_Chi_Amount ()
@@ -147,13 +160,13 @@ public static class IdleData
     // Get karma price for reincarnation
     public static double GetReincarnationKarmaPrice()
     {
-        return REINCARNATION_KARMA_PRICE * Math.Pow((INCARNATION + 1), REINCARNATION_KARMA_EXPONENT);
+        return REINCARNATION_KARMA_PRICE * Math.Pow((INCARNATION + 1), REINCARNATION_KARMA_EXPONENT) * (LIFEPATH == ELifepath.Consciousness ? 0.75f : 1f);
     }
 
     // Get chi price for reincarnation
     public static double GetReincarnationChiPrice()
     {
-        return REINCARNATION_CHI_PRICE * Math.Pow((INCARNATION + 1), REINCARNATION_CHI_EXPONENT);
+        return REINCARNATION_CHI_PRICE * Math.Pow((INCARNATION + 1), REINCARNATION_CHI_EXPONENT) * (LIFEPATH == ELifepath.Consciousness ? 0.75f : 1f);
     }
 
     // Get global multiplier for reincarnation

@@ -1,66 +1,65 @@
-Shader "Custom/FlashEffectShader"
+Shader "Custom/BlinkSpriteURP"
 {
     Properties
     {
-        _Color("Flash Color", Color) = (1, 1, 1, 1)
-        _FlashIntensity("Flash Intensity", Range(0, 1)) = 0.0
-        _MainTex("Base (RGB)", 2D) = "white" { }
+        [MainTexture] _MainTex("Sprite Texture", 2D) = "white" {}
+        _Color("Color Tint", Color) = (1,1,1,1)
+        _BlinkColor("Blink Color", Color) = (1,1,1,1)
+        _BlinkAmount("Blink Amount", Range(0,1)) = 0
     }
+
         SubShader
-    {
-        Tags { "Queue" = "Overlay" "RenderType" = "Opaque" }
-
-        Pass
         {
-            Tags { "LightMode" = "UniversalForward" }
+            Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
+            LOD 100
 
-            HLSLPROGRAM
-            #pragma multi_compile_fog
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
-            TEXTURE2D(_MainTex);
-            SAMPLER(sampler_MainTex);
-
-            float _FlashIntensity;
-            float4 _Color;
-
-            // Structure d'entrée pour la passe
-            struct Attributes
+            Pass
             {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+                Name "BlinkSpritePass"
+                Tags { "LightMode" = "UniversalForward" }
 
-            // Structure de sortie pour la passe
-            struct Varyings
-            {
-                float4 pos : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+                Blend SrcAlpha OneMinusSrcAlpha
+                Cull Off
+                ZWrite Off
 
-            // Fonction de vertex
-            Varyings vert(Attributes v)
-            {
-                Varyings o;
-                o.pos = TransformObjectToHClip(v.vertex.xyz);
-                o.uv = v.uv;
-                return o;
+                HLSLPROGRAM
+                #pragma vertex vert
+                #pragma fragment frag
+                #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+                struct Attributes
+                {
+                    float4 positionOS : POSITION;
+                    float2 uv : TEXCOORD0;
+                };
+
+                struct Varyings
+                {
+                    float4 positionHCS : SV_POSITION;
+                    float2 uv : TEXCOORD0;
+                };
+
+                sampler2D _MainTex;
+                float4 _MainTex_ST;
+                float4 _Color;
+                float4 _BlinkColor;
+                float _BlinkAmount;
+
+                Varyings vert(Attributes input)
+                {
+                    Varyings output;
+                    output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
+                    output.uv = TRANSFORM_TEX(input.uv, _MainTex);
+                    return output;
+                }
+
+                half4 frag(Varyings input) : SV_Target
+                {
+                    half4 texColor = tex2D(_MainTex, input.uv) * _Color;
+                    half4 blinkColor = lerp(texColor, _BlinkColor, _BlinkAmount);
+                    return blinkColor;
+                }
+                ENDHLSL
             }
-
-            // Fonction de fragment (qui définit la couleur finale)
-            half4 frag(Varyings i) : SV_Target
-            {
-                // Obtenir la couleur du sprite de base (la texture)
-                half4 baseColor = tex2D(sampler_MainTex, i.uv);
-
-                // Appliquer l'intensité du flash
-                half flashEffect = _FlashIntensity;
-                return baseColor * (1.0 - flashEffect) + _Color * flashEffect;
-            }
-
-            ENDHLSL
         }
-    }
-
-        FallBack "Diffuse"
 }

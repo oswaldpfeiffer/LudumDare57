@@ -13,6 +13,8 @@ public class Reincarnate : MonoBehaviour
     [SerializeField] TMP_Text _GlobalMult;
     [SerializeField] TMP_Text _lifePath;
 
+    [SerializeField] GameObject ReincarnationPopup;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,7 +26,7 @@ public class Reincarnate : MonoBehaviour
         _chiPrice.text = IdleData.GetReincarnationChiPrice().ToString();
         _karmaPrice.text = IdleData.GetReincarnationKarmaPrice().ToString();
         _GlobalMult.text = "Global Multiplier : " + IdleData.GetGlobalMultiplier();
-        _currentIncarnation.text = "Current Incarnation : " + IdleData.INCARNATION + 1;
+        _currentIncarnation.text = "Current Incarnation : " + (IdleData.INCARNATION + 1);
         _lifePath.text = "Lifepath : " + IdleData.LIFEPATH;
     }
 
@@ -38,7 +40,13 @@ public class Reincarnate : MonoBehaviour
     {
         if (IdleData.CHI >= IdleData.GetReincarnationChiPrice() && IdleData.KARMA >= IdleData.GetReincarnationKarmaPrice())
         {
-
+            ReincarnationPopup.SetActive(true);
         }
+    }
+    
+    public void HidePopup ()
+    {
+        ReincarnationPopup.SetActive(false);
+        UpdateData();
     }
 }
