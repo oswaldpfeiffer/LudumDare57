@@ -15,6 +15,7 @@ public class SessionManager : SingletonBaseClass<SessionManager>
     public SpriteRenderer ClothesSprite;
 
     public Animator Flash;
+    public AudioSource FlashSound;
 
     private void Start()
     {
@@ -22,11 +23,13 @@ public class SessionManager : SingletonBaseClass<SessionManager>
         KarmaStore.SetActive(false);
         ReincarnationStore.SetActive(false);
         Flash.SetTrigger("Flash");
+        FlashSound.Play();
     }
 
     public void StartNewGame (ELifepath path)
     {
         Flash.SetTrigger("Flash");
+        FlashSound.Play();
         IdleData.LIFEPATH = path;
         IdleData.ResetData();
         _reincarnateLogic.HidePopup();

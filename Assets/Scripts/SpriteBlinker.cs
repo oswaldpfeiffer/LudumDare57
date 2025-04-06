@@ -8,6 +8,8 @@ public class SpriteBlinker : SingletonBaseClass<SpriteBlinker>
     private float blinkTimer = 0f;
     private bool isBlinking = false;
 
+    public AudioSource _audio;
+
     private void Start()
     {
         spriteRenderer.sharedMaterial.SetFloat("_BlinkAmount", 0f);
@@ -35,5 +37,7 @@ public class SpriteBlinker : SingletonBaseClass<SpriteBlinker>
         spriteRenderer.sharedMaterial.SetFloat("_BlinkAmount", 0.1f);
         blinkTimer = blinkDuration;
         isBlinking = true;
+        _audio.Play();
+        _audio.pitch = Random.Range(0.9f, 1.1f);
     }
 }

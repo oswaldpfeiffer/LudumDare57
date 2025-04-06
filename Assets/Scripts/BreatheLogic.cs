@@ -47,6 +47,8 @@ public class BreatheLogic : SingletonBaseClass<BreatheLogic>
     public GameObject BreathTuto;
     private float breathCount;
 
+    public GameObject InhaleSound;
+
     // Update is called once per frame
     void Update()
     {
@@ -56,11 +58,14 @@ public class BreatheLogic : SingletonBaseClass<BreatheLogic>
         PassiveEarnings();
         HandleCameraFocus();
         if (breathCount > 10f) BreathTuto.SetActive(false);
+        InhaleSound.SetActive(_multiplyEarnings);
     }
 
     private void HandleCameraFocus()
     {
-        _camFOVTarget = _multiplyEarnings ? _camFOVFocus : _camFOVNormal;
+        float karma = Mathf.Clamp((float)IdleData.KARMA, 0, 1000f);
+        karma = (karma / 1000f) * 10;
+        _camFOVTarget = _multiplyEarnings ? _camFOVFocus + karma : _camFOVNormal;
         float diff = _camFOVTarget - _cam.fieldOfView;
         _cam.fieldOfView += diff * Time.deltaTime * 2;
     }
