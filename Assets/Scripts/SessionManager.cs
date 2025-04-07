@@ -19,11 +19,13 @@ public class SessionManager : SingletonBaseClass<SessionManager>
 
     private void Start()
     {
-        ChiStore.SetActive(false);
-        KarmaStore.SetActive(false);
-        ReincarnationStore.SetActive(false);
+        int o = PlayerPrefs.GetInt("OpenedOnce", 0);
+        ChiStore.SetActive(o == 1);
+        KarmaStore.SetActive(o == 1);
+        ReincarnationStore.SetActive(o == 1);
         Flash.SetTrigger("Flash");
         FlashSound.Play();
+        PlayerPrefs.SetInt("OpenedOnce", 1);
     }
 
     public void StartNewGame (ELifepath path)

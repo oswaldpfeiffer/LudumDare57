@@ -25,7 +25,7 @@ public class Upgrade_KarmaBreathMult : UpgradeItemParent
         if (IsPurchasable())
         {
             IdleData.CHI -= GetNewUpgradePrice();
-            IdleData.CHI_MULTIPLIER_LEVEL++;
+            IdleData.KARMA_MULTIPLIER_LEVEL++;
         }
     }
 }

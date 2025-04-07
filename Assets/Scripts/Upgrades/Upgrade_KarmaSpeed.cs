@@ -24,7 +24,7 @@ public class Upgrade_KarmaSpeed : UpgradeItemParent
         if (IsPurchasable())
         {
             IdleData.CHI -= GetNewUpgradePrice();
-            IdleData.CHI_SPEED_LEVEL++;
+            IdleData.KARMA_SPEED_LEVEL++;
         }
     }
 }
